@@ -78,22 +78,31 @@ def main():
     log.info("Per-file log-probabilities:")
     total_log_prob1 = 0.0
     total_log_prob2 = 0.0
+    cat1_count = 0
+    cat2_count = 0
+    total_count = 0
+
     for file in args.test_files:
         log_prob1: float = file_log_prob(file, lm1)
         log_prob2: float = file_log_prob(file, lm2)
         #print(f"{log_prob:g}\t{file}")
         if log_prob1 > log_prob2:
-            print(os.path.basename(args.model1),' ', file)
-        else :
-            print(os.path.basename(args.model2), ' ', file)
+            print('gen',' ', file) #generalize for other category names
+            cat1_count += 1
+        else:
+            print('spam', ' ', file) #generalize for other category names
+            cat2_count += 1
+        total_count += 1
         total_log_prob1 += log_prob1
-        total_log_prob2 += log_prob2        
+        total_log_prob2 += log_prob2
 
+    print(cat1_count, "files were more probably", "gen (" + str(cat1_count / total_count) + "%)") #generalize for other category names
+    print(cat2_count, "files were more probably", "spam (" + str(cat2_count / total_count) + "%)") #generalize for other category names
     bits1 = -total_log_prob1 / math.log(2)   # convert to bits of surprisal
     bits2 = -total_log_prob2 / math.log(2)   # convert to bits of surprisal
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)
-    print(f"Overall cross-entropy for first model:\t{bits1 / tokens:.5f} bits per token")
-    print(f"Overall cross-entropy for second model:\t{bits2 / tokens:.5f} bits per token")
+    #print(f"Overall cross-entropy for first model:\t{bits1 / tokens:.5f} bits per token")
+    #print(f"Overall cross-entropy for second model:\t{bits2 / tokens:.5f} bits per token")
 
 
 if __name__ == "__main__":
