@@ -68,22 +68,32 @@ def main():
     logging.basicConfig(level=args.verbose)
 
     log.info("Testing...")
-    lm = LanguageModel.load(args.model1)
+    lm1 = LanguageModel.load(args.model1)
+    lm2 = LanguageModel.load(args.model2)
     # We use natural log for our internal computations and that's
     # the kind of log-probability that file_log_prob returns.
     # But we'd like to print a value in bits: so we convert
     # log base e to log base 2 at print time, by dividing by log(2).
 
     log.info("Per-file log-probabilities:")
-    total_log_prob = 0.0
+    total_log_prob1 = 0.0
+    total_log_prob2 = 0.0
     for file in args.test_files:
-        log_prob: float = file_log_prob(file, lm)
-        print(f"{log_prob:g}\t{file}")
-        total_log_prob += log_prob
+        log_prob1: float = file_log_prob(file, lm1)
+        log_prob2: float = file_log_prob(file, lm2)
+        #print(f"{log_prob:g}\t{file}")
+        if log_prob1 > log_prob2:
+            print(os.path.basename(args.model1),' ', file)
+        else :
+            print(os.path.basename(args.model2), ' ', file)
+        total_log_prob1 += log_prob1
+        total_log_prob2 += log_prob2        
 
-    bits = -total_log_prob / math.log(2)   # convert to bits of surprisal
+    bits1 = -total_log_prob1 / math.log(2)   # convert to bits of surprisal
+    bits2 = -total_log_prob2 / math.log(2)   # convert to bits of surprisal
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)
-    print(f"Overall cross-entropy:\t{bits / tokens:.5f} bits per token")
+    print(f"Overall cross-entropy for first model:\t{bits1 / tokens:.5f} bits per token")
+    print(f"Overall cross-entropy for second model:\t{bits2 / tokens:.5f} bits per token")
 
 
 if __name__ == "__main__":
