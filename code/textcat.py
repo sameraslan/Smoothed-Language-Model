@@ -16,14 +16,19 @@ log = logging.getLogger(Path(__file__).stem)  # Basically the only okay global v
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "model",
+        "model1",
         type=Path,
-        help="path to the trained model",
+        help="path to the first trained model",
     )
     parser.add_argument(
-        "model",
+        "model2",
         type=Path,
-        help="path to the trained model",
+        help="path to the second trained model",
+    )
+    parser.add_argument(
+        "prior_prob",
+        type=float,
+        help="prior probability of first category",
     )
     parser.add_argument(
         "test_files",
@@ -63,7 +68,7 @@ def main():
     logging.basicConfig(level=args.verbose)
 
     log.info("Testing...")
-    lm = LanguageModel.load(args.model)
+    lm = LanguageModel.load(args.model1)
     # We use natural log for our internal computations and that's
     # the kind of log-probability that file_log_prob returns.
     # But we'd like to print a value in bits: so we convert
