@@ -6,7 +6,7 @@ Perplexity per word of sample1: 68.53 \
 Perplexity per word of sample2: 95.24 \
 Perplexity per word of sample3: 89.60
 
-If we train on the larger switchboard corpus, all the log probabilities are more negative, thus causing the perplexities for each of the sample files to be greater. This could be due to overfitting.
+If we train on the larger switchboard corpus, all the log probabilities are more negative, thus causing the perplexities for each of the sample files to be greater. This could be due to overfitting or unrepresentative training data.
 
 ###Q3(a)
 All gen test files were classified as gen (error rate of 0%). 93.33% of spam test files were classified as gen (error rate of 93.33%). Overall this results in a dev file error rate of 84/270 (31.11%). 
