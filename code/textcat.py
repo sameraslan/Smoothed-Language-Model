@@ -80,6 +80,8 @@ def main():
     log.info("Per-file log-probabilities:")
     total_log_prob1 = 0.0
     total_log_prob2 = 0.0
+    cat1_name = args.model1.stem
+    cat2_name = args.model2.stem
     cat1_count = 0
     cat2_count = 0
     total_count = 0
@@ -89,17 +91,17 @@ def main():
         log_prob2: float = file_log_prob(file, lm2, (1 - args.prior_prob))
         #print(f"{log_prob:g}\t{file}")
         if log_prob1 > log_prob2:
-            print('gen',' ', file) #generalize for other category names
+            print(cat1_name,' ', file) #generalize for other category names
             cat1_count += 1
         else:
-            print('spam', ' ', file) #generalize for other category names
+            print(cat2_name, ' ', file)
             cat2_count += 1
         total_count += 1
         total_log_prob1 += log_prob1
         total_log_prob2 += log_prob2
 
-    print(cat1_count, "files were more probably", "gen (" + str(cat1_count / total_count) + "%)") #generalize for other category names
-    print(cat2_count, "files were more probably", "spam (" + str(cat2_count / total_count) + "%)") #generalize for other category names
+    print(cat1_count, "files were more probably", cat1_name, "(" + str(cat1_count / total_count) + "%)")
+    print(cat2_count, "files were more probably", cat2_name, "(" + str(cat2_count / total_count) + "%)")
     bits1 = -total_log_prob1 / math.log(2)   # convert to bits of surprisal
     bits2 = -total_log_prob2 / math.log(2)   # convert to bits of surprisal
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)
