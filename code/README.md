@@ -9,10 +9,10 @@ Perplexity per word of sample3: 89.60
 If we train on the larger switchboard corpus, all the log probabilities are more negative, thus causing the perplexities for each of the sample files to be greater. This could be due to overfitting or unrepresentative training data.
 
 ###Q3(a)
-Created vocab list from en.1k and sp.1k.
 All gen test files were classified as gen (error rate of 0%). 93.33% of spam test files were classified as gen (error rate of 93.33%). Overall this results in a dev file error rate of 84/270 (31.11%). 
 
 ###Q3(b)
+Created vocab list from en.1k and sp.1k.
 All english test files were classified as english (error rate of 0%). 100%% of spanish test files were classified as english (error rate of 100%%). Overall this results in a dev file error rate of 119/339 (49.79%).
 
 ###Q3(c)
@@ -33,11 +33,16 @@ With lambda = .0061: 9.09363 bits per token
 Thus, it seems that the lambda* used for smoothing both models that minimizes cross entropy is roughly .0061, resulting in a cross entropy of 9.09363 bits per token
 
 ###Q3(f)
+Photos in the google doc. 
+
+###Q3(h)
 
 
 ###Q4(a)
-The UNIFORM estimate 1/V would be slightly greater than the ideal estimate since V (the denominator) would be one less, resulting in slight overfitting. This is also the case for add-lambda since the denominator would be smaller by lambda.
+The UNIFORM estimate 1/V would be slightly greater than the ideal estimate since V (the denominator) would be one less, resulting in slight overfitting. This is also the case for add-lambda since the denominator would be smaller by lambda. Running fileprob with no OOV also causes an error because we're taking the log of novel words that are assigned a probability of zero.
 
 ###Q4(b)
-The model would not be smoothing at all, leaving the add lambda estimate of p(z|x,y) = c(x,y,z)/c(x,y). This would overfit the training data and not account for novel words that are in the test set.
+The model would not be smoothing at all, leaving the add lambda estimate of p(z|x,y) = c(x,y,z)/c(x,y). This would overfit the training data and not account for novel words that are in the test set. Running fileprob with a lambda of 0 also causes an error because we're taking the log of zero probability novel words.
+
+
 

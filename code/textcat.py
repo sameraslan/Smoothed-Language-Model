@@ -7,6 +7,8 @@ import argparse
 import logging
 import math
 from pathlib import Path
+import numpy
+import matplotlib.pyplot as plt
 
 from probs import LanguageModel, num_tokens, read_trigrams
 
@@ -86,7 +88,12 @@ def main():
     cat2_count = 0
     total_count = 0
 
+    total_log_prob = 0.0
+    num_words_list = []
+    classification_accuracy_list = []
+
     for file in args.test_files:
+        classification_accuracy = 0
         log_prob1: float = file_log_prob(file, lm1, args.prior_prob)
         log_prob2: float = file_log_prob(file, lm2, (1 - args.prior_prob))
         #print(f"{log_prob:g}\t{file}")
@@ -96,6 +103,12 @@ def main():
         else:
             print(cat2_name, ' ', file)
             cat2_count += 1
+            classification_accuracy = 1
+
+        file_name = file.stem
+        file_num_words = file_name.split('.')[1]
+        num_words_list.append(float(file_num_words))
+        classification_accuracy_list.append(classification_accuracy)
         total_count += 1
         total_log_prob1 += log_prob1
         total_log_prob2 += log_prob2
@@ -107,6 +120,18 @@ def main():
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)
     #print(f"Overall cross-entropy for first model:\t{bits1 / tokens:.5f} bits per token")
     #print(f"Overall cross-entropy for second model:\t{bits2 / tokens:.5f} bits per token")
+
+    correlation_matrix = numpy.corrcoef(num_words_list, classification_accuracy_list)
+    correlation_xy = correlation_matrix[0, 1]
+    r_squared = correlation_xy ** 2
+    print('Correlation =', r_squared)
+
+    plt.plot(num_words_list, classification_accuracy_list, 'rx')
+    plt.xlabel("Number of words in file")
+    plt.ylabel("Classified Correctly (1) or Incorrectly (0)")
+    plt.xlim(left=-0, right=700)
+    plt.title("Spam Files Number of Words vs Classification Accuracy")
+    plt.show()
 
 
 if __name__ == "__main__":

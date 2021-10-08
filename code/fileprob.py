@@ -7,6 +7,7 @@ import argparse
 import logging
 import math
 from pathlib import Path
+import numpy
 import matplotlib.pyplot as plt
 
 from probs import LanguageModel, num_tokens, read_trigrams
@@ -83,11 +84,17 @@ def main():
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)
     print(f"Overall cross-entropy:\t{bits / tokens:.5f} bits per token")
 
-    plt.plot(num_words_list, total_probs_list, 'rx')
+    '''correlation_matrix = numpy.corrcoef(num_words_list, total_probs_list)
+    correlation_xy = correlation_matrix[0, 1]
+    r_squared = correlation_xy ** 2
+    print('Correlation =', r_squared)'''
+
+    '''plt.plot(num_words_list, total_probs_list, 'rx')
     plt.xlabel("Number of words in file")
     plt.ylabel("Lob Probability / Number of words")
-    plt.title("Gen Files Number of Words vs Log Probability")
-    plt.show()
+    plt.xlim(left=-0, right=10)
+    plt.title("Spam Files Number of Words vs Log Probability")
+    plt.show()'''
 
     #print(f"Dev cross entropy:\t{bits / devbits:.5f} bits per token") #used to calculate dev bits for 3e
 
