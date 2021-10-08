@@ -82,8 +82,8 @@ def main():
     log.info("Per-file log-probabilities:")
     total_log_prob1 = 0.0
     total_log_prob2 = 0.0
-    cat1_name = args.model1.stem
-    cat2_name = args.model2.stem
+    cat1_name = args.model1
+    cat2_name = args.model2
     cat1_count = 0
     cat2_count = 0
     total_count = 0
@@ -121,7 +121,7 @@ def main():
     #print(f"Overall cross-entropy for first model:\t{bits1 / tokens:.5f} bits per token")
     #print(f"Overall cross-entropy for second model:\t{bits2 / tokens:.5f} bits per token")
 
-    correlation_matrix = numpy.corrcoef(num_words_list, classification_accuracy_list)
+    '''correlation_matrix = numpy.corrcoef(num_words_list, classification_accuracy_list)
     correlation_xy = correlation_matrix[0, 1]
     r_squared = correlation_xy ** 2
     print('Correlation =', r_squared)
@@ -131,7 +131,7 @@ def main():
     plt.ylabel("Classified Correctly (1) or Incorrectly (0)")
     plt.xlim(left=-0, right=700)
     plt.title("Spam Files Number of Words vs Classification Accuracy")
-    plt.show()
+    plt.show()'''
 
 
 if __name__ == "__main__":

@@ -44,5 +44,10 @@ The UNIFORM estimate 1/V would be slightly greater than the ideal estimate since
 ###Q4(b)
 The model would not be smoothing at all, leaving the add lambda estimate of p(z|x,y) = c(x,y,z)/c(x,y). This would overfit the training data and not account for novel words that are in the test set. Running fileprob with a lambda of 0 also causes an error because we're taking the log of zero probability novel words.
 
+###Q4(c)
+If c(xyz) = c(xyz') = 0, then it doesn't follow that phat(z | xy) = phat(z' | xy). When working it out by hand, we have the terms c(yz) and c(yz') which may not be equal to 0. This also applies when c(xyz) = c(xyz') = 1 (c(yz) and c(yz') may be greater than 1). The resulting \
+phat(z | x y) = ((lambda * V) * c(yz) + (lambda * V * phat(z))) /\
+((c(xy) + lambda * V) * (c(y) + lambda * V))
 
-
+###Q4(d)
+Increasing lambda decreases the probability of words that appear frequently in training, and increases the probability of OOV words. 
