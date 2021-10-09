@@ -113,8 +113,8 @@ def main():
         total_log_prob1 += log_prob1
         total_log_prob2 += log_prob2
 
-    print(cat1_count, "files were more probably", cat1_name, "(" + str(cat1_count / total_count) + "%)")
-    print(cat2_count, "files were more probably", cat2_name, "(" + str(cat2_count / total_count) + "%)")
+    print(cat1_count, "files were more probably", cat1_name, "(" + str(100 * cat1_count / total_count) + "%)")
+    print(cat2_count, "files were more probably", cat2_name, "(" + str(100 * cat2_count / total_count) + "%)")
     bits1 = -total_log_prob1 / math.log(2)   # convert to bits of surprisal
     bits2 = -total_log_prob2 / math.log(2)   # convert to bits of surprisal
     tokens = sum(num_tokens(test_file) for test_file in args.test_files)

@@ -288,8 +288,22 @@ class BackoffAddLambdaLanguageModel(AddLambdaLanguageModel):
         super().__init__(vocab, lambda_)
 
     def prob(self, x: Wordtype, y: Wordtype, z: Wordtype) -> float:
-        # TODO: Reimplement me so that I do backoff
-        return super().prob(x, y, z)
+        # TODO: Reimplement me so that I do backoff: Implemented
+        assert self.event_count[x, y, z] <= self.context_count[x, y]
+
+        if self.event_count[z, ] == 0:
+            z = OOV
+
+        p_z = self.event_count[z, ] / self.event_count[()]
+
+        p_zgiveny = (self.event_count[y, z] + self.lambda_ * self.vocab_size * p_z) / \
+                    (self.context_count[y, ] + self.lambda_ * self.vocab_size)
+
+        x = ((self.event_count[x, y, z] + self.lambda_ * self.vocab_size * p_zgiveny) /
+             (self.context_count[x, y] + self.lambda_ * self.vocab_size))
+
+        return x
+
         # Don't forget the difference between the Wordtype z and the
         # 1-element tuple (z,). If you're looking up counts,
         # these will have very different counts!
