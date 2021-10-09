@@ -320,8 +320,9 @@ class EmbeddingLogLinearLanguageModel(LanguageModel, nn.Module):
         self.l2: float = l2
 
         # TODO: READ THE LEXICON OF WORD VECTORS AND STORE IT IN A USEFUL FORMAT.
-        self.dim = 99999999999  # TODO: SET THIS TO THE DIMENSIONALITY OF THE VECTORS
-
+        self.dims, self.lexWords, self.lexEmbeddings = self.from_file(lexicon_file)
+        self.dim = int(self.dims[1])
+        self.VocabEmbeds = self.createVocabEmbeds()
         # We wrap the following matrices in nn.Parameter objects.
         # This lets PyTorch know that these are parameters of the model
         # that should be listed in self.parameters() and will be
@@ -332,6 +333,21 @@ class EmbeddingLogLinearLanguageModel(LanguageModel, nn.Module):
         # training, but those wouldn't use nn.Parameter.
         self.X = nn.Parameter(torch.zeros((self.dim, self.dim)), requires_grad=True)
         self.Y = nn.Parameter(torch.zeros((self.dim, self.dim)), requires_grad=True)
+
+    def from_file(self, file: Path):
+
+        with open(file) as f:
+            first_line = next(f)  # Peel off the special first line.
+            dims = first_line.split(); # tensor dimensions
+
+            lexWords = []
+            lexEmbeddings = []
+            for line in f:  # All of the other lines are regular.
+                currRow = line.split()
+                lexWords.append(Wordtype(currRow.pop(0)))
+                lexEmbeddings.append(list(map(float, currRow))) #stuff inside parentheses is to convert data from str to float
+            
+        return dims, lexWords, torch.FloatTensor(lexEmbeddings)
 
     def prob(self, x: Wordtype, y: Wordtype, z: Wordtype) -> float:
         # This returns an ordinary float probability, using the
@@ -354,7 +370,42 @@ class EmbeddingLogLinearLanguageModel(LanguageModel, nn.Module):
         # The operator `@` is a nice way to write matrix multiplication:
         # you can write J @ K as shorthand for torch.mul(J, K).
         # J @ K looks more like the usual math notation.
-        raise NotImplementedError("Implement me!")
+
+        # first, check if x, y, z are in lexicon.
+
+        if x not in self.lexWords:
+            x = OOL
+        if y not in self.lexWords:
+            y = OOL
+        if z not in self.lexWords:
+            z = OOL
+        
+        # now get your vectors!
+        vecX = self.lexEmbeddings[self.lexWords.index(x)]
+        vecY = self.lexEmbeddings[self.lexWords.index(y)]
+        vecZ = self.lexEmbeddings[self.lexWords.index(z)]
+
+        numerator = vecX @ (self.X @ torch.t(vecZ)) + vecY @ (self.Y @ torch.t(vecZ))
+        numerator = torch.exp(numerator)
+
+        calc = (vecX @ (self.X @ torch.t(self.VocabEmbeds))) + (vecY @ (self.Y @ torch.t(self.VocabEmbeds)))
+        calc = torch.exp(calc)
+        denominator = torch.sum(calc)
+
+        return torch.log(numerator / denominator)
+
+    def createVocabEmbeds(self):
+        VocabEmbeds = []
+        for word in self.vocab:
+            if word in self.lexWords:
+                idx = self.lexWords.index(word)
+                VocabEmbeds.append(list(self.lexEmbeddings[idx]))
+            else:
+                idx = self.lexWords.index(OOL)
+                VocabEmbeds.append(list(self.lexEmbeddings[idx]))
+
+        VocabEmbeds = torch.FloatTensor(VocabEmbeds)
+        return VocabEmbeds
 
     def train(self, file: Path):    # type: ignore
         
