@@ -24,6 +24,7 @@ import sys
 
 from pathlib import Path
 
+import random
 import torch
 from torch import nn
 from torch import optim
@@ -101,6 +102,20 @@ def read_trigrams(file: Path, vocab: Vocab) -> Iterable[Trigram]:
             x, y = BOS, BOS  # reset for the next sequence in the file (if any)
         else:
             x, y = y, z  # shift over by one position.
+
+
+'''
+def sample(x: WordType, y: WordType, file: Path, vocab: Vocab) -> Iterable[Trigram]:
+    bigram_prob = []
+    bigram_next_word = []
+
+    x, y = BOS, BOS
+    for z in vocab:
+        bigram_prob.append(prob(x,y,z))
+        bigram_next_word.append(z)
+
+    selection = random.choices((bigram_next_word, cum_weights=bigram_prob, k=1)
+'''
 
 
 def draw_trigrams_forever(file: Path, 
@@ -387,12 +402,11 @@ class EmbeddingLogLinearLanguageModel(LanguageModel, nn.Module):
 
         numerator = vecX @ (self.X @ torch.t(vecZ)) + vecY @ (self.Y @ torch.t(vecZ))
         numerator = torch.exp(numerator)
+        logp = torch.log(numerator)
 
-        calc = (vecX @ (self.X @ torch.t(self.VocabEmbeds))) + (vecY @ (self.Y @ torch.t(self.VocabEmbeds)))
-        calc = torch.exp(calc)
-        denominator = torch.sum(calc)
-
-        return torch.log(numerator / denominator)
+        denominator = (vecX @ (self.X @ torch.t(self.VocabEmbeds))) + (vecY @ (self.Y @ torch.t(self.VocabEmbeds)))
+        ZXY = torch.logsumexp(denominator, 0)
+        return logp - ZXY
 
     def createVocabEmbeds(self):
         VocabEmbeds = []
