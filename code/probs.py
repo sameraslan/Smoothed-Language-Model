@@ -402,11 +402,12 @@ class EmbeddingLogLinearLanguageModel(LanguageModel, nn.Module):
 
         numerator = vecX @ (self.X @ torch.t(vecZ)) + vecY @ (self.Y @ torch.t(vecZ))
         numerator = torch.exp(numerator)
-        logp = torch.log(numerator)
 
-        denominator = (vecX @ (self.X @ torch.t(self.VocabEmbeds))) + (vecY @ (self.Y @ torch.t(self.VocabEmbeds)))
-        ZXY = torch.logsumexp(denominator, 0)
-        return logp - ZXY
+        calc = (vecX @ (self.X @ torch.t(self.VocabEmbeds))) + (vecY @ (self.Y @ torch.t(self.VocabEmbeds)))
+        calc = torch.exp(calc)
+        denominator = torch.sum(calc)
+
+        return torch.log(numerator / denominator)
 
     def createVocabEmbeds(self):
         VocabEmbeds = []
