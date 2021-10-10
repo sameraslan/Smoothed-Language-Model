@@ -25,11 +25,14 @@ import sys
 from pathlib import Path
 
 import random
+
+import numpy
 import torch
 from torch import nn
 from torch import optim
 from typing import Counter
 from collections import Counter
+from numpy.random import choice
 
 log = logging.getLogger(Path(__file__).stem)  # Basically the only okay global variable.
 
@@ -102,20 +105,6 @@ def read_trigrams(file: Path, vocab: Vocab) -> Iterable[Trigram]:
             x, y = BOS, BOS  # reset for the next sequence in the file (if any)
         else:
             x, y = y, z  # shift over by one position.
-
-
-'''
-def sample(x: WordType, y: WordType, file: Path, vocab: Vocab) -> Iterable[Trigram]:
-    bigram_prob = []
-    bigram_next_word = []
-
-    x, y = BOS, BOS
-    for z in vocab:
-        bigram_prob.append(prob(x,y,z))
-        bigram_next_word.append(z)
-
-    selection = random.choices((bigram_next_word, cum_weights=bigram_prob, k=1)
-'''
 
 
 def draw_trigrams_forever(file: Path, 
@@ -231,6 +220,21 @@ class LanguageModel:
         raise NotImplementedError(
             f"{class_name}.prob is not implemented yet (you should override LanguageModel.prob)"
         )
+
+    def sample(self, x: Wordtype, y: Wordtype, vocab: Vocab) -> str:
+        bigram_prob = []
+        bigram_next_word = []
+
+        first, second = x, y
+        for z in vocab:
+            bigram_prob.append(self.prob(first, second, z))
+            bigram_next_word.append(str(z))
+
+        selection = random.choices(bigram_next_word, weights=bigram_prob, k=1)
+        selection = selection[0]
+        print(selection)
+
+        return selection
 
     @classmethod
     def load(cls, source: Path) -> "LanguageModel":

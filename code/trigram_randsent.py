@@ -32,7 +32,6 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="max length of each sample"
     )
-
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument(
         "-v",
@@ -48,17 +47,30 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def file_log_prob(file: Path, lm: LanguageModel) -> float:
+def lm_sample(lm: LanguageModel, max_length: int) -> str:
     """The file contains one sentence per line. Return the total
     log-probability of all these sentences, under the given language model.
     (This is a natural log, as for all our internal computations.)
     """
-    log_prob = 0.0
-    for (x, y, z) in read_trigrams(file, lm.vocab):
-        prob = lm.prob(x, y, z)  # p(z | xy)
-        log_prob += math.log(prob)
 
-    return log_prob
+    (x, y) = ("BOS", "BOS")
+    z = lm.sample(x, y, lm.vocab)
+    (x, y) = (y, z)
+
+    sentence = z
+    length = 1
+
+    while z != "EOS" and length < max_length:
+        length += 1
+
+        z = lm.sample(x, y, lm.vocab)
+        (x, y) = (y, z)
+
+        sentence += " " + z
+
+    sentence += "."
+
+    return sentence
 
 
 def main():
@@ -67,27 +79,11 @@ def main():
 
     log.info("Testing...")
     lm = LanguageModel.load(args.model)
-    # We use natural log for our internal computations and that's
-    # the kind of log-probability that file_log_prob returns.
-    # But we'd like to print a value in bits: so we convert
-    # log base e to log base 2 at print time, by dividing by log(2).
+    max_length = args.max_length
 
-    log.info("Per-file log-probabilities:")
-    total_log_prob = 0.0
-    num_words_list = []
-    total_probs_list = []
-    for file in args.test_files:
-        file_name = file.stem
-        file_num_words = file_name.split('.')[1]
-        num_words_list.append(float(file_num_words))
-        log_prob: float = file_log_prob(file, lm)
-        total_probs_list.append(float(log_prob)/float(file_num_words))
-        print(f"{log_prob:g}\t{file}")
-
-
-    bits = -total_log_prob / math.log(2)   # convert to bits of surprisal
-    tokens = sum(num_tokens(test_file) for test_file in args.test_files)
-    print(f"Overall cross-entropy:\t{bits / tokens:.5f} bits per token")
+    for i in range(args.samples):
+        sentence = lm_sample(lm, max_length)
+        print(sentence)
 
 
 if __name__ == "__main__":
