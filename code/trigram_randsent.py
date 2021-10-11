@@ -63,7 +63,7 @@ def lm_sample(lm: LanguageModel, max_length: int) -> str:
     while z != "EOS" and length < max_length:
         length += 1
 
-        z = lm.sample(x, y, lm.vocab)
+        z = lm.sample(x, y)
         (x, y) = (y, z)
 
         sentence += " " + z

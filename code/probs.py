@@ -221,18 +221,17 @@ class LanguageModel:
             f"{class_name}.prob is not implemented yet (you should override LanguageModel.prob)"
         )
 
-    def sample(self, x: Wordtype, y: Wordtype, vocab: Vocab) -> str:
+    def sample(self, x: Wordtype, y: Wordtype) -> str:
         bigram_prob = []
         bigram_next_word = []
 
         first, second = x, y
-        for z in vocab:
+        for z in self.vocab:
             bigram_prob.append(self.prob(first, second, z))
             bigram_next_word.append(str(z))
 
         selection = random.choices(bigram_next_word, weights=bigram_prob, k=1)
         selection = selection[0]
-        print(selection)
 
         return selection
 

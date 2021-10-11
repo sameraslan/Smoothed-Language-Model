@@ -51,3 +51,7 @@ phat(z | x y) = ((lambda * V) * c(yz) + (lambda * V * phat(z))) /\
 
 ###Q4(d)
 Increasing lambda decreases the probability of words that appear frequently in training, and increases the probability of OOV words. 
+
+
+###Q8
+We're trying to maximize p(U | w) (or the log of this probability) since it gives us an indication of how much the vector w resembles the audio utterance U. We're also trying to maximize p(w): the prior probability of the sentence looking like English using our trigram language model. Thus, what we are ultimately trying to maximize is the product of these two probabilities. This would allow us to combine the audio utterance knowledge and english similarity (prior trigram language model probability) knowledge when selecting a candidate. We can compute this using the log probability in the speech file to represent the estimate of p(U | w) and the product of the probability of each trigram in the sentence given the language model used for p(w). 
